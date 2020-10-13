@@ -16,8 +16,8 @@
 
 #pragma once
 
-//! PCH
-#include "atomic.dex.pch.hpp"
+#include <antara/gaming/ecs/system.hpp>
+#include <boost/thread/synchronized_value.hpp>
 
 namespace atomic_dex
 {
@@ -43,7 +43,7 @@ namespace atomic_dex
         void update() noexcept final;
 
         //! Public API
-        const nlohmann::json get_update_status() const noexcept;
+        [[nodiscard]] nlohmann::json get_update_status() const noexcept;
     };
 } // namespace atomic_dex
 

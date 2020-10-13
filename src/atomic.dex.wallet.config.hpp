@@ -16,31 +16,43 @@
 
 #pragma once
 
-#include "atomic.dex.pch.hpp"
+//! Deps
+#include <boost/thread/synchronized_value.hpp>
 
 namespace atomic_dex
 {
     struct contact_contents
     {
-        std::string type;
-        std::string address;
+        std::string type{};
+        std::string address{};
     };
 
     void to_json(nlohmann::json& j, const contact_contents& cfg);
 
     struct contact
     {
-        std::string                   name;
-        std::vector<contact_contents> contents;
+        std::string                   name{};
+        std::vector<contact_contents> contents{};
     };
 
     void to_json(nlohmann::json& j, const contact& cfg);
 
+    struct transactions_contents
+    {
+        std::string note;
+        std::string category;
+    };
+
+    void to_json(nlohmann::json& j, const transactions_contents& cfg);
+    void from_json(const nlohmann::json& j, transactions_contents& cfg);
+
     struct wallet_cfg
     {
-        std::string          name;
-        std::string          protection_pass{"default_protection_pass"};
-        std::vector<contact> address_book;
+        using t_synchronized_transactions_details = boost::synchronized_value<std::unordered_map<std::string, transactions_contents>>;
+        std::string                         name{};
+        std::string                         protection_pass{"default_protection_pass"};
+        std::vector<contact>                address_book{};
+        t_synchronized_transactions_details transactions_details;
     };
 
     void from_json(const nlohmann::json& j, wallet_cfg& cfg);

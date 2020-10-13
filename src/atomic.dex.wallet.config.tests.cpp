@@ -14,6 +14,7 @@
  *                                                                            *
  ******************************************************************************/
 
+#include "atomic.dex.pch.hpp"
 #include "atomic.dex.wallet.config.hpp"
 #include <doctest/doctest.h>
 
@@ -90,6 +91,8 @@ TEST_CASE("validate json deserialization from cpp data structure to json")
     auto                   j = R"(
              {
    "name":"roman",
+   "protection_pass": "default_protection_pass",
+   "transactions_details": {},
    "addressbook":[
       {
          "name":"ca333",

@@ -17,6 +17,7 @@
 #pragma once
 
 #include <QJsonArray>
+#include <QJsonObject>
 #include <QString>
 
 namespace atomic_dex
@@ -24,10 +25,13 @@ namespace atomic_dex
     struct portfolio_data
     {
         //! eg: BTC,ETH,KMD (constant)
-        const QString ticker;
+        QString ticker;
+
+        //! eg: ERC-20/QRC-20/etc
+        QString coin_type;
 
         //! eg: Bitcoin
-        const QString name;
+        QString name;
 
         //! eg: 1
         QString balance;
@@ -41,11 +45,20 @@ namespace atomic_dex
         //! eg: 9400 $
         QString main_currency_price_for_one_unit;
 
+        //! eg: Real fiat values eg: 9400$
+        QString main_fiat_price_for_one_unit;
+
         //! Paprika data rates
         QJsonArray trend_7d;
 
         bool is_excluded{false};
 
         QString display;
+
+        QString ticker_and_name;
+
+        bool is_multi_ticker_enabled{false};
+
+        std::optional<QJsonObject> multi_ticker_data{std::nullopt};
     };
 } // namespace atomic_dex

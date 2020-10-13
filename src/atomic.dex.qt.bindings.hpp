@@ -16,17 +16,16 @@
 
 #pragma once
 
+//! QT Headers
 #include <QDebug>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QObject>
 
-//! PCH Headers
-#include "atomic.dex.pch.hpp"
-
-//!
+//! Project Headers
 #include "atomic.dex.mm2.hpp"
 #include "atomic.dex.provider.coinpaprika.hpp"
+#include "atomic.dex.global.price.service.hpp"
 
 namespace atomic_dex
 {
@@ -124,7 +123,7 @@ namespace atomic_dex
         return obj;
     }
 
-    QVariantList inline to_qt_binding(t_transactions&& transactions, coinpaprika_provider& paprika, const std::string& fiat, const std::string& ticker)
+    QVariantList inline to_qt_binding(t_transactions&& transactions, global_price_service& price_service, const std::string& fiat, const std::string& ticker)
     {
         QVariantList out;
         out.reserve(transactions.size());
@@ -132,7 +131,7 @@ namespace atomic_dex
         for (auto&& tx: transactions)
         {
             std::error_code ec;
-            auto            fiat_amount = paprika.get_price_as_currency_from_tx(fiat, ticker, tx, ec);
+            auto            fiat_amount = price_service.get_price_as_currency_from_tx(fiat, ticker, tx, ec);
             j.push_back(to_qt_binding(std::move(tx), fiat_amount));
         }
         QJsonDocument q_json = QJsonDocument::fromJson(QString::fromStdString(j.dump()).toUtf8());
@@ -152,7 +151,8 @@ namespace atomic_dex
             {"type", coin.type},
             {"explorer_url", coin.explorer_url},
             {"tx_uri", coin.tx_uri},
-            {"address_uri", coin.address_url}};
+            {"address_uri", coin.address_url},
+            {"is_custom_coin", coin.is_custom_coin}};
         return j;
     }
 

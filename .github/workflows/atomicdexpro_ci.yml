@@ -3,6 +3,9 @@ name: AtomicDEX Desktop CI
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - master
   schedule:
     - cron: '0 0 * * 1'
 
@@ -85,26 +88,28 @@ jobs:
                                git -y
 
 
+          # get llvm
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 10
+
           # set clang version
-          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-9 777
-          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-9 777
+          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-10 777
+          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-10 777
 
           # set gnu compilers version
           sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 777
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 777
 
-          # get llvm
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 9
+
 
           sudo apt-get update
-          sudo apt-get install libc++abi-9-dev libc++-9-dev -y
+          sudo apt-get install libc++abi-10-dev libc++-10-dev -y
 
           export CXXFLAGS=-stdlib=libc++
           export LDFLAGS=-stdlib=libc++
-          export CXX=clang++-9
-          export CC=clang-9
+          export CXX=clang++-10
+          export CC=clang-10
 
           # get right cmake version
           wget https://github.com/Kitware/CMake/releases/download/v3.17.3/cmake-3.17.3-Linux-x86_64.tar.gz
@@ -127,8 +132,8 @@ jobs:
          # duplicating because got suspicion that update-alternatives doesnt save between steps
 
           # set clang version
-          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-9 777
-          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-9 777
+          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-10 777
+          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-10 777
 
           # set gnu compilers version
           sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 777
@@ -138,8 +143,8 @@ jobs:
         env: # Or as an environment variable
           CXXFLAGS: -stdlib=libc++
           LDFLAGS: -stdlib=libc++
-          CXX: clang++-9
-          CC: clang-9
+          CXX: clang++-10
+          CC: clang-10
         uses: KomodoPlatform/run-vcpkg@v3
         with:
           vcpkgArguments: '@${{ github.workspace }}/.github/workflows/linux_response_file.txt'
@@ -154,8 +159,8 @@ jobs:
           export PATH=$HOME/.nimble/bin:$PATH
           export CXXFLAGS=-stdlib=libc++
           export LDFLAGS=-stdlib=libc++
-          export CXX=clang++-9
-          export CC=clang-9
+          export CXX=clang++-10
+          export CC=clang-10
           cd ci_tools_atomic_dex
           nimble build -y
 
@@ -175,8 +180,8 @@ jobs:
           export PATH=$HOME/.nimble/bin:$PATH
           export CXXFLAGS=-stdlib=libc++
           export LDFLAGS=-stdlib=libc++
-          export CXX=clang++-9
-          export CC=clang-9
+          export CXX=clang++-10
+          export CC=clang-10
           echo "Running tests"
           ./ci_tools_atomic_dex tests release
           cd build-Release/bin/AntaraAtomicDexTestsAppDir/usr/bin
@@ -308,7 +313,7 @@ jobs:
           cd ci_tools_atomic_dex
           nimble build -y
           ./ci_tools_atomic_dex bundle release --osx_sdk=$HOME/sdk/MacOSX10.13.sdk --compiler=/usr/local/opt/llvm@9/bin/clang++
-          ls bundle-Release/atomicDefi.dmg
+          ls bundle-Release/atomicDexPro.dmg
 
       - name: Running Tests (MacOS)
         env: # Or as an environment variable
@@ -319,7 +324,7 @@ jobs:
           export QT_ROOT=${{ github.workspace }}/Qt/${{ matrix.qt }}
           echo "Running tests"
           ./ci_tools_atomic_dex tests release
-          cd build-Release/bin/atomicDeFi_tests.app/Contents/MacOS
+          cd build-Release/bin/atomicDexPro_tests.app/Contents/MacOS
           cat atomic-dex-tests-result.xml
           curl https://report.ci/upload.py --output upload.py
           ls
@@ -332,7 +337,6 @@ jobs:
         with:
           name: ${{ matrix.name }}.dmg
           path: ./ci_tools_atomic_dex/bundle-Release/${{ matrix.name }}-atomicDefi.dmg
-
 
 
   windows-build:
@@ -382,8 +386,15 @@ jobs:
         shell: powershell
         run: |
           Set-ExecutionPolicy RemoteSigned -scope CurrentUser
+          
+          $DWFILE = ($PWD | select -exp Path) + '\nim-1.2.6.zip'
+          (New-Object System.Net.WebClient).DownloadFile('https://github.com/KomodoPlatform/nim_kmd_package_list/raw/master/nim-1.2.6_x64.zip', $DWFILE)
+          $DWFOLDER = ($PWD | select -exp Path)
+          Expand-Archive -LiteralPath $DWFILE -DestinationPath $DWFOLDER
+          $ENV:PATH=$ENV:PATH+';'+($PWD | select -exp Path)+'\nim-1.2.6\bin;'+$ENV:UserProfile+'.nimble\bin'
+          & $DWFOLDER\nim-1.2.6\finish.exe -y
+          
           Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
-          scoop install nim --global
           scoop install llvm --global
           scoop install ninja --global
           scoop install cmake --global

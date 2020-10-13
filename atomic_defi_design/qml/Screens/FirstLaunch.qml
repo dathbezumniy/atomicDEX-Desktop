@@ -1,6 +1,6 @@
-import QtQuick 2.14
-import QtQuick.Layouts 1.12
-import QtQuick.Controls 2.12
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
+import QtQuick.Controls 2.15
 
 import "../Components"
 import "../Constants"
@@ -14,18 +14,18 @@ SetupPage {
 
     // Local
     function updateWallets() {
-        wallets = API.get().get_wallets()
+        wallets = API.app.get_wallets()
     }
 
     property var wallets: ([])
 
-    image_path: General.image_path + Style.sidebar_atomicdefi_logo
+    image_path: General.image_path + Style.sidebar_atomicdex_logo
     image_margin: 30
     content: ColumnLayout {
         width: 400
         spacing: Style.rowSpacing
         DefaultText {
-            text_value: API.get().settings_pg.empty_string + (qsTr("Welcome"))
+            text_value: qsTr("Welcome")
         }
 
         HorizontalLine {
@@ -38,13 +38,13 @@ SetupPage {
 
             DefaultButton {
                 Layout.fillWidth: true
-                text: API.get().settings_pg.empty_string + (qsTr("Recover Seed"))
+                text: qsTr("Recover Seed")
                 onClicked: onClickedRecoverSeed()
             }
 
             DefaultButton {
                 Layout.fillWidth: true
-                text: API.get().settings_pg.empty_string + (qsTr("New User"))
+                text: qsTr("New User")
                 onClicked: onClickedNewUser()
             }
         }
@@ -57,7 +57,7 @@ SetupPage {
 
             // Name
             DefaultText {
-                text_value: API.get().settings_pg.empty_string + (qsTr("Wallets"))
+                text_value: qsTr("Wallets")
                 font.pixelSize: Style.textSizeSmall2
             }
 
@@ -75,14 +75,14 @@ SetupPage {
                     model: wallets
 
                     delegate: GradientRectangle {
-                        start_color: mouse_area.containsMouse ? Style.colorWalletsHighlightGradient1 : "transparent"
-                        end_color: mouse_area.containsMouse ? Style.colorWalletsHighlightGradient2 : "transparent"
+                        start_color: Style.applyOpacity(Style.colorWalletsHighlightGradient, mouse_area.containsMouse ? "80" : "00")
+                        end_color:  Style.applyOpacity(Style.colorWalletsHighlightGradient)
 
                         width: bg.width
                         height: bg.row_height
 
                         // Click area
-                        MouseArea {
+                        DefaultMouseArea {
                             id: mouse_area
                             anchors.fill: parent
                             hoverEnabled: true
@@ -97,7 +97,7 @@ SetupPage {
                             anchors.left: parent.left
                             anchors.leftMargin: 40
 
-                            text_value: API.get().settings_pg.empty_string + (model.modelData)
+                            text_value: model.modelData
                             anchors.verticalCenter: parent.verticalCenter
                             font.pixelSize: Style.textSizeSmall2
                         }

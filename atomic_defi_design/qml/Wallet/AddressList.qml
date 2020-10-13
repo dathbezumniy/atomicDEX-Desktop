@@ -1,6 +1,6 @@
-import QtQuick 2.14
-import QtQuick.Layouts 1.12
-import QtQuick.Controls 2.12
+import QtQuick 2.15
+import QtQuick.Layouts 1.15
+import QtQuick.Controls 2.15
 
 import "../Components"
 import "../Constants"
@@ -24,8 +24,8 @@ ColumnLayout {
         clip: true
 
         // Row
-        delegate: DefaultText {
-            text_value: API.get().settings_pg.empty_string + (model.modelData)
+        delegate: DefaultTextEdit {
+            text_value: model.modelData
             color: Style.modalValueColor
             privacy: true
         }

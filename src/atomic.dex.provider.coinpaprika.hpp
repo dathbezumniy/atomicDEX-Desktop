@@ -16,9 +16,6 @@
 
 #pragma once
 
-//! PCH Headers
-#include "atomic.dex.pch.hpp"
-
 //! Project Headers
 #include "atomic.dex.cfg.hpp"
 #include "atomic.dex.events.hpp"
@@ -37,58 +34,33 @@ namespace atomic_dex
 
       private:
         //! Typedefs
-        using t_json_synchronized       = boost::synchronized_value<nlohmann::json>;
-        using t_providers_registry      = t_concurrent_reg<std::string, std::string>;
-        using t_supported_fiat_registry = std::unordered_set<std::string>;
+        using t_providers_registry = t_concurrent_reg<std::string, std::string>;
 
         //! Private fields
-        mm2&                         m_mm2_instance;
-        atomic_dex::cfg&             m_cfg;
-        t_json_synchronized          m_other_fiats_rates;
-        t_providers_registry         m_usd_rate_providers{};
-        t_providers_registry         m_eur_rate_providers{};
-        t_providers_registry         m_btc_rate_providers{};
-        t_providers_registry         m_kmd_rate_providers{};
-        t_ticker_infos_registry      m_ticker_infos_registry{};
-        t_ticker_historical_registry m_ticker_historical_registry{};
-        t_supported_fiat_registry    m_supported_fiat_registry{"USD", "EUR", "BTC", "KMD", "GBP", "HKD", "IDR", "ILS", "DKK", "INR", "CHF", "MXN",
-                                                            "CZK", "SGD", "THB", "HRK", "MYR", "NOK", "CNY", "BGN", "PHP", "PLN", "ZAR", "CAD",
-                                                            "ISK", "BRL", "RON", "NZD", "TRY", "JPY", "RUB", "KRW", "AUD", "HUF", "SEK"};
-        std::thread                  m_provider_rates_thread;
-        timed_waiter                 m_provider_thread_timer;
+        mm2&                         m_mm2_instance;                 ///< represent the MM2 instance
+        t_providers_registry         m_usd_rate_providers{};         ///< USD Rate Providers
+        t_ticker_infos_registry      m_ticker_infos_registry{};      ///< Ticker info registry, key is the ticker
+        t_ticker_historical_registry m_ticker_historical_registry{}; ///< Ticker historical registry, key is the ticker
 
       public:
         //! Constructor
-        coinpaprika_provider(entt::registry& registry, mm2& mm2_instance, atomic_dex::cfg& config);
+        coinpaprika_provider(entt::registry& registry, mm2& mm2_instance);
 
         //! Destructor
         ~coinpaprika_provider() noexcept final;
 
+        //! Public API
+
         //! Get the rate conversion for the given fiat.
-        std::string get_rate_conversion(const std::string& fiat, const std::string& ticker, std::error_code& ec, bool adjusted = false) const noexcept;
-
-        //! Fiat can be USD or EUR
-        std::string get_price_in_fiat(const std::string& fiat, const std::string& ticker, std::error_code& ec, bool skip_precision = false) const noexcept;
-
-        //! Get the whole balance in the given fiat.
-        std::string get_price_in_fiat_all(const std::string& fiat, std::error_code& ec) const noexcept;
-
-        //! Get the price in currency from a transaction.
-        std::string
-        get_price_as_currency_from_tx(const std::string& currency, const std::string& ticker, const tx_infos& tx, std::error_code& ec) const noexcept;
-
-        //! Get the price in currency from a fees.
-        std::string get_price_as_currency_from_amount(
-            const std::string& currency, const std::string& ticker, const std::string& amount, std::error_code& ec) const noexcept;
-
-        //! Get the cex rates base / rel eg: VRSC / KMD = price of usd VRSC / KMD price USD
-        std::string get_cex_rates(const std::string& base, const std::string& rel, std::error_code& ec) const noexcept;
+        std::string get_rate_conversion(const std::string& fiat, const std::string& ticker, std::error_code& ec) const noexcept;
 
         //! Get the ticker informations.
         t_ticker_info_answer get_ticker_infos(const std::string& ticker) const noexcept;
 
         //! Get the ticker informations.
         t_ticker_historical_answer get_ticker_historical(const std::string& ticker) const noexcept;
+
+        //! Events
 
         //! Event that occur when the mm2 process is launched correctly.
         void on_mm2_started(const mm2_started& evt) noexcept;
@@ -99,7 +71,11 @@ namespace atomic_dex
         //! Event that occur when a coin is correctly disabled.
         void on_coin_disabled(const coin_disabled& evt) noexcept;
 
+        //! Override ag::ecs functions
         void update() noexcept final;
+
+        //! Update all the data of the provider in an async way
+        void update_ticker_and_provider();
     };
 } // namespace atomic_dex
 

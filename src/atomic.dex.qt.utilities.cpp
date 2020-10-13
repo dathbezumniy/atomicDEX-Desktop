@@ -17,16 +17,19 @@
 //! QT Headers
 #include <QtNetwork>
 
+//! PCH
+#include "atomic.dex.pch.hpp"
+
 //! Project headers
 #include "atomic.dex.qt.utilities.hpp"
 
 namespace atomic_dex
 {
-    bool
+    /*bool
     am_i_able_to_reach_this_endpoint(const QString& endpoint)
     {
         return RestClient::get(endpoint.toStdString()).code == 200;
-    }
+    }*/
 
     QJsonArray
     nlohmann_json_array_to_qt_json_array(const nlohmann::json& j)

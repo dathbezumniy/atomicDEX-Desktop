@@ -29,4 +29,18 @@ namespace atomic_dex
         QString rel;
         QString human_date;
     };
-}
+
+    struct balance_update_notification
+    {
+        bool    am_i_sender; // Received / Successfully Send
+        QString amount;      // 4
+        QString ticker;      // RICK
+        QString human_date;
+        qint64  timestamp;
+    };
+
+    struct multi_ticker_enabled
+    {
+        QString ticker;
+    };
+} // namespace atomic_dex

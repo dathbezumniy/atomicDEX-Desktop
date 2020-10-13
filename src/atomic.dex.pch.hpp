@@ -1,5 +1,6 @@
 #pragma once
 
+/*
 #ifdef ENABLE_CODE_RELOAD_WINDOWS
 #    define NOMINMAX
 #    include "API/LPP_API.h"
@@ -12,10 +13,10 @@
 #    include <jet/live/Live.hpp>
 #    include <jet/live/Utility.hpp>
 
-#endif
+#endif*/
 
 //! C System Headers
-#include <cctype>
+/*#include <cctype>
 #include <climits>
 #include <cmath>
 #include <csignal>
@@ -58,7 +59,7 @@
 #include <unordered_set>
 #include <utility>
 #include <variant>
-#include <vector>
+#include <vector>*/
 
 //! Global Helpers
 #include <boost/filesystem.hpp>
@@ -99,7 +100,7 @@ struct overloaded : Ts...
 template <class... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
 
-//! Folly Headers
+/*//! Folly Headers
 #include <folly/Memory.h>
 #include <folly/SharedMutex.h>
 #include <folly/concurrency/ConcurrentHashMap.h>
@@ -109,19 +110,20 @@ namespace folly
     // Explicitly instantiate SharedMutex here:
     template class SharedMutexImpl<true>;
     template class SharedMutexImpl<false>;
-} // namespace folly
+} // namespace folly*/
 
 //! Boost Headers
-#include <boost/algorithm/string/case_conv.hpp>
-#include <boost/algorithm/string/join.hpp>
-#include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/trim.hpp>
+/*#include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/erase.hpp>
+#include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/algorithm/string/split.hpp>
+
+#include <boost/lockfree/queue.hpp>
 #include <boost/random/random_device.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
-#include <boost/lockfree/queue.hpp>
-#include <boost/thread/synchronized_value.hpp>
+#include <boost/thread/synchronized_value.hpp>*/
 //#include <boost/filesystem.hpp>
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -157,40 +159,84 @@ adjust_precision(const std::string& current)
 #pragma clang diagnostic pop
 
 //! Ranges
-#include <range/v3/view/iota.hpp> ///< ranges::view::ints
-#include <range/v3/view/zip.hpp>  ///< ranges::view::zip
+/*#include <range/v3/view/iota.hpp> ///< ranges::view::ints
+#include <range/v3/view/zip.hpp> ///< ranges::view::zip
 
 #if defined(_WIN32) || defined(WIN32)
 #    include <wally.hpp>
 #else
 #    include <boost/random/random_device.hpp>
 #    include <wally.hpp>
-#endif
+#endif*/
 
-#include <date/date.h>
-#include <date/tz.h>
-#define ENTT_STANDARD_CPP
-#include <entt/entity/helper.hpp>
-#include <entt/signal/dispatcher.hpp>
-#include <spdlog/async.h>
-#include <spdlog/sinks/rotating_file_sink.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/spdlog.h>
-//#define LOGURU_WITH_FILEABS 1
-//#include <loguru.hpp>
-#include <meta/detection/detection.hpp>
+//#include <date/date.h>
+//#include <date/tz.h>
+
+//#define ENTT_STANDARD_CPP
+
 #if defined(_WIN32) || defined(WIN32)
 #    define and &&
 #    define or ||
 #    define not !
 #endif
+
 #include <nlohmann/json.hpp>
+#include <spdlog/async.h>
+#include <spdlog/sinks/rotating_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
+/*#include <entt/entity/helper.hpp>
+#include <entt/signal/dispatcher.hpp>
+#include <meta/detection/detection.hpp>
+
+
+
 #include <reproc++/reproc.hpp>
+#include <restclient-cpp/connection.h>
 #include <restclient-cpp/restclient.h>
-#include <sodium.h>
+#include <sodium.h>*/
+
+//! CPPRESTSDK
+#define _TURN_OFF_PLATFORM_STRING
+#include <cpprest/http_client.h>
+#ifdef _WIN32
+#    define TO_STD_STR(ws_str) utility::conversions::to_utf8string(ws_str)
+#    define FROM_STD_STR(utf8str) utility::conversions::to_string_t(utf8str)
+#else
+#    define TO_STD_STR(ws_str) ws_str
+#    define FROM_STD_STR(utf8str) utf8str
+#endif
+using t_http_client_ptr = std::unique_ptr<web::http::client::http_client>;
+using t_http_client     = web::http::client::http_client;
+using t_http_request    = web::http::http_request;
+
+inline t_http_request
+create_json_post_request(nlohmann::json&& json_data)
+{
+    t_http_request req;
+    req.set_method(web::http::methods::POST);
+    req.headers().set_content_type(FROM_STD_STR("application/json"));
+    req.set_body(json_data.dump());
+    return req;
+}
+
+inline void
+handle_exception_pplx_task(pplx::task<void> previous_task)
+{
+    try
+    {
+        previous_task.wait();
+    }
+    catch (const std::exception& e)
+    {
+        spdlog::error("pplx task error: {}", e.what());
+    }
+}
+
 
 //! SDK Headers
 #include <antara/gaming/core/open.url.browser.hpp>
+/*#include <antara/gaming/core/open.url.browser.hpp>
 #include <antara/gaming/core/real.path.hpp>
 #include <antara/gaming/ecs/system.hpp>
 #include <antara/gaming/ecs/virtual.input.system.hpp>
@@ -198,6 +244,6 @@ adjust_precision(const std::string& current)
 #include <antara/gaming/event/quit.game.hpp>
 #include <antara/gaming/graphics/component.canvas.hpp>
 #include <antara/gaming/timer/time.step.hpp>
-#include <antara/gaming/world/world.app.hpp>
+#include <antara/gaming/world/world.app.hpp>*/
 
 namespace ag = antara::gaming;
